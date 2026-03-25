@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "roku-remote",
+    "name": "Roku Remote",
     "slug": "roku-remote",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,17 +9,32 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "This app needs local network access to discover and control your Roku TV.",
+        "NSBonjourServices": [
+          "_roku._tcp"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#6C3FC5",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.ACCESS_WIFI_STATE"
+      ],
+      "package": "com.anonymous.rokuremote"
     },
     "web": {
       "output": "static",
@@ -33,9 +48,17 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#0D0D0F",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#0D0D0F"
+          }
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
           }
         }
       ]
@@ -43,6 +66,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ba01f616-3d4b-44f9-9173-4e8339f12482"
+      }
     }
   }
 }
