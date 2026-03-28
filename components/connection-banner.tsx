@@ -1,9 +1,9 @@
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { useDeviceStore } from "@/hooks/use-device-store";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text } from "react-native";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useDeviceStore } from "@/hooks/use-device-store";
 
 export function ConnectionBanner() {
 	const colorScheme = useColorScheme() ?? "dark";
