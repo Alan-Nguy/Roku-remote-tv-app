@@ -65,7 +65,8 @@ export default function RemoteScreen() {
 				<View style={styles.row}>
 					<RemoteButton
 						icon="power-settings-new"
-						onPress={() => press("Power")}
+						onPress={() => press("PowerOn")}
+						onLongPress={() => press("PowerOff")}
 						variant="danger"
 						size="medium"
 					/>

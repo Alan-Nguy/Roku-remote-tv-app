@@ -81,19 +81,21 @@ export async function getLocalSubnet(): Promise<string | null> {
  * This is the core "button press" — like clicking a controller button.
  */
 export async function sendKeypress(ip: string, key: RokuKey): Promise<boolean> {
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
 	try {
 		const response = await fetch(`http://${ip}:${ECP_PORT}/keypress/${key}`, {
 			method: "POST",
-			headers: { "Content-Length": "0" },
+			signal: controller.signal,
 		});
+		clearTimeout(timeout);
 		console.log(`[Roku] keypress ${key} → status ${response.status}`);
 		return response.ok;
 	} catch (err) {
-		console.warn(
-			`[Roku] keypress ${key} to ${ip} failed:`,
-			JSON.stringify(err),
-			err,
-		);
+		clearTimeout(timeout);
+		if (err instanceof Error && err.name !== "AbortError") {
+			console.warn(`[Roku] keypress ${key} to ${ip} failed:`, err.message);
+		}
 		return false;
 	}
 }
