@@ -1,75 +1,81 @@
 {
-	"expo": {
-		"name": "Roku Remote",
-		"slug": "roku-remote",
-		"version": "1.0.0",
-		"orientation": "portrait",
-		"icon": "./assets/images/icon.png",
-		"scheme": "rokuremote",
-		"userInterfaceStyle": "automatic",
-		"newArchEnabled": true,
-		"ios": {
-			"supportsTablet": true,
-			"infoPlist": {
-				"NSLocalNetworkUsageDescription": "This app needs local network access to discover and control your Roku TV.",
-				"NSBonjourServices": ["_roku._tcp"]
-			}
-		},
-		"android": {
-			"adaptiveIcon": {
-				"backgroundColor": "#6C3FC5",
-				"foregroundImage": "./assets/images/android-icon-foreground.png",
-				"backgroundImage": "./assets/images/android-icon-background.png",
-				"monochromeImage": "./assets/images/android-icon-monochrome.png"
-			},
-			"edgeToEdgeEnabled": true,
-			"predictiveBackGestureEnabled": false,
-			"permissions": [
-				"android.permission.INTERNET",
-				"android.permission.ACCESS_NETWORK_STATE",
-				"android.permission.ACCESS_WIFI_STATE",
-				"android.permission.INTERNET",
-				"android.permission.ACCESS_NETWORK_STATE",
-				"android.permission.ACCESS_WIFI_STATE"
-			],
-			"package": "com.anonymous.rokuremote"
-		},
-		"web": {
-			"output": "static",
-			"favicon": "./assets/images/favicon.png"
-		},
-		"plugins": [
-			"expo-router",
-			[
-				"expo-splash-screen",
-				{
-					"image": "./assets/images/splash-icon.png",
-					"imageWidth": 200,
-					"resizeMode": "contain",
-					"backgroundColor": "#0D0D0F",
-					"dark": {
-						"backgroundColor": "#0D0D0F"
-					}
-				}
-			],
-			[
-				"expo-build-properties",
-				{
-					"android": {
-						"usesCleartextTraffic": true
-					}
-				}
-			]
-		],
-		"experiments": {
-			"typedRoutes": true,
-			"reactCompiler": true
-		},
-		"extra": {
-			"router": {},
-			"eas": {
-				"projectId": "ba01f616-3d4b-44f9-9173-4e8339f12482"
-			}
-		}
-	}
+  "expo": {
+    "name": "Roku Remote",
+    "slug": "roku-remote",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "rokuremote",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "This app needs local network access to discover and control your Roku TV.",
+        "NSBonjourServices": [
+          "_roku._tcp"
+        ]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#6C3FC5",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.ACCESS_WIFI_STATE"
+      ],
+      "package": "com.anonymous.rokuremote"
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#0D0D0F",
+          "dark": {
+            "backgroundColor": "#0D0D0F"
+          }
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      "expo-font",
+      "expo-image",
+      "expo-status-bar",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ba01f616-3d4b-44f9-9173-4e8339f12482"
+      }
+    }
+  }
 }
