@@ -1,22 +1,17 @@
-/**
- * Remote Control Screen — the main "gamepad" of the app.
- *
- * Layout follows the classic Roku remote:
- * - Top row: Power, Home, Back
- * - D-pad with center Select button
- * - Media controls: Rev, Play/Pause, Fwd
- * - Bottom: Volume, Mute, special buttons
- *
- * Every button press fires an HTTP POST to the Roku's ECP endpoint.
- * Haptic feedback on press makes it feel like a real remote.
- */
-
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ConnectionBanner } from "@/components/connection-banner";
 import { RemoteButton } from "@/components/remote-button";
+import { ActionRow } from "@/components/remote/ActionRow";
+import { AppShortcutsRow } from "@/components/remote/AppShortcutsRow";
+import { CircularDPad } from "@/components/remote/CircularDPad";
+import { MediaControlsRow } from "@/components/remote/MediaControlsRow";
+import { NowPlayingCard } from "@/components/remote/NowPlayingCard";
+import { VoiceSearchButton } from "@/components/remote/VoiceSearchButton";
+import { VolumeRow } from "@/components/remote/VolumeRow";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useDeviceStore } from "@/hooks/use-device-store";
@@ -27,202 +22,138 @@ export default function RemoteScreen() {
 	const colors = Colors[colorScheme];
 	const { connectedDevice } = useDeviceStore();
 	const router = useRouter();
-	const [lastError, setLastError] = useState<string | null>(null);
+
+	const [volumeLevel, setVolumeLevel] = useState<number | null>(null);
+	const [muted, setMuted] = useState(false);
+	const [showMore, setShowMore] = useState(false);
 
 	const press = useCallback(
 		async (key: RokuKey) => {
 			if (!connectedDevice) return;
-			setLastError(null);
-			const ok = await sendKeypress(connectedDevice.ip, key);
-			if (!ok) {
-				setLastError(`Failed to send ${key}`);
-			}
+			await sendKeypress(connectedDevice.ip, key);
 		},
 		[connectedDevice],
 	);
 
+	const handleVolumeDown = () => {
+		press("VolumeDown");
+		setVolumeLevel((v) => Math.max(0, (v ?? 50) - 1));
+		setMuted(false);
+	};
+
+	const handleVolumeUp = () => {
+		press("VolumeUp");
+		setVolumeLevel((v) => Math.min(100, (v ?? 50) + 1));
+		setMuted(false);
+	};
+
+	const handleMute = () => {
+		press("VolumeMute");
+		setMuted((m) => !m);
+	};
+
 	return (
-		<SafeAreaView
-			style={[styles.container, { backgroundColor: colors.background }]}
-		>
+		<SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
 			<ConnectionBanner />
 
 			{/* Header */}
 			<View style={styles.header}>
-				<Text style={[styles.title, { color: colors.text }]}>Remote</Text>
-				{connectedDevice && (
-					<Text style={[styles.subtitle, { color: colors.subtle }]}>
-						{connectedDevice.name}
+				<Pressable style={styles.devicePill} onPress={() => router.push("/connect")}>
+					<View style={[styles.dot, { backgroundColor: connectedDevice ? colors.success : colors.subtle }]} />
+					<Text style={[styles.deviceName, { color: colors.text }]} numberOfLines={1}>
+						{connectedDevice?.name ?? "No Device"}
 					</Text>
-				)}
+					<MaterialIcons name="keyboard-arrow-down" size={18} color={colors.subtle} />
+				</Pressable>
+
+				<RemoteButton
+					icon="power-settings-new"
+					onPress={() => press("PowerOn")}
+					onLongPress={() => press("PowerOff")}
+					variant="danger"
+					size="small"
+					style={styles.powerBtn}
+				/>
 			</View>
 
 			<ScrollView
 				contentContainerStyle={styles.controls}
 				showsVerticalScrollIndicator={false}
 			>
-				{/* Top Row: Power, Home, Back */}
-				<View style={styles.row}>
-					<RemoteButton
-						icon="power-settings-new"
-						onPress={() => press("PowerOn")}
-						onLongPress={() => press("PowerOff")}
-						variant="danger"
-						size="medium"
-					/>
-					<RemoteButton
-						icon="home"
-						onPress={() => press("Home")}
-						size="medium"
-					/>
-					<RemoteButton
-						icon="arrow-back"
-						onPress={() => press("Back")}
-						size="medium"
+				<NowPlayingCard deviceIp={connectedDevice?.ip ?? null} />
+
+				<View style={styles.dpadWrapper}>
+					<CircularDPad
+						onUp={() => press("Up")}
+						onDown={() => press("Down")}
+						onLeft={() => press("Left")}
+						onRight={() => press("Right")}
+						onSelect={() => press("Select")}
 					/>
 				</View>
 
-				{/* D-Pad */}
-				<View
-					style={[
-						styles.dpadContainer,
-						{ backgroundColor: colors.card, borderColor: colors.cardBorder },
-					]}
+				<ActionRow
+					onBack={() => press("Back")}
+					onHome={() => press("Home")}
+					onOptions={() => press("Info")}
+				/>
+
+				<MediaControlsRow
+					onReplay={() => press("InstantReplay")}
+					onRewind={() => press("Rev")}
+					onPlayPause={() => press("Play")}
+					onForward={() => press("Fwd")}
+					onMore={() => press("Info")}
+				/>
+
+				<VolumeRow
+					volumeLevel={volumeLevel}
+					muted={muted}
+					onVolumeDown={handleVolumeDown}
+					onVolumeUp={handleVolumeUp}
+					onMute={handleMute}
+				/>
+
+				<AppShortcutsRow deviceIp={connectedDevice?.ip ?? null} />
+
+				<VoiceSearchButton
+					onPress={() => {
+						press("Search");
+						router.push("/keyboard");
+					}}
+				/>
+
+				{/* More toggle */}
+				<Pressable
+					style={styles.moreToggle}
+					onPress={() => setShowMore((s) => !s)}
 				>
-					{/* Up */}
-					<View style={styles.dpadRow}>
-						<RemoteButton
-							icon="keyboard-arrow-up"
-							onPress={() => press("Up")}
-							variant="round"
-							size="large"
-						/>
-					</View>
-					{/* Left, Select, Right */}
-					<View style={styles.dpadRow}>
-						<RemoteButton
-							icon="keyboard-arrow-left"
-							onPress={() => press("Left")}
-							variant="round"
-							size="large"
-						/>
-						<RemoteButton
-							label="OK"
-							onPress={() => press("Select")}
-							variant="accent"
-							size="large"
-							style={{ borderRadius: 999, width: 70, height: 70 }}
-							textStyle={{ fontSize: 16, fontWeight: "700" }}
-						/>
-						<RemoteButton
-							icon="keyboard-arrow-right"
-							onPress={() => press("Right")}
-							variant="round"
-							size="large"
-						/>
-					</View>
-					{/* Down */}
-					<View style={styles.dpadRow}>
-						<RemoteButton
-							icon="keyboard-arrow-down"
-							onPress={() => press("Down")}
-							variant="round"
-							size="large"
-						/>
-					</View>
-				</View>
+					<Text style={[styles.moreLabel, { color: colors.subtle }]}>More</Text>
+					<MaterialIcons
+						name={showMore ? "keyboard-arrow-up" : "keyboard-arrow-down"}
+						size={18}
+						color={colors.subtle}
+					/>
+				</Pressable>
 
-				{/* Media Controls */}
-				<View style={styles.row}>
-					<RemoteButton
-						icon="fast-rewind"
-						onPress={() => press("Rev")}
-						size="medium"
-					/>
-					<RemoteButton
-						icon="play-arrow"
-						onPress={() => press("Play")}
-						variant="accent"
-						size="medium"
-					/>
-					<RemoteButton
-						icon="fast-forward"
-						onPress={() => press("Fwd")}
-						size="medium"
-					/>
-				</View>
+				{showMore && (
+					<>
+						{/* Utility Row */}
+						<View style={styles.row}>
+							<RemoteButton icon="replay" onPress={() => press("InstantReplay")} size="small" />
+							<RemoteButton icon="info-outline" onPress={() => press("Info")} size="small" />
+							<RemoteButton icon="search" onPress={() => press("Search")} size="small" />
+							<RemoteButton icon="keyboard" onPress={() => router.push("/keyboard")} size="small" />
+						</View>
 
-				{/* Volume Controls */}
-				<View style={styles.row}>
-					<RemoteButton
-						icon="volume-down"
-						onPress={() => press("VolumeDown")}
-						size="medium"
-					/>
-					<RemoteButton
-						icon="volume-off"
-						onPress={() => press("VolumeMute")}
-						size="medium"
-					/>
-					<RemoteButton
-						icon="volume-up"
-						onPress={() => press("VolumeUp")}
-						size="medium"
-					/>
-				</View>
-
-				{/* Utility Row */}
-				<View style={styles.row}>
-					<RemoteButton
-						icon="replay"
-						onPress={() => press("InstantReplay")}
-						size="small"
-					/>
-					<RemoteButton
-						icon="info-outline"
-						onPress={() => press("Info")}
-						size="small"
-					/>
-					<RemoteButton
-						icon="search"
-						onPress={() => press("Search")}
-						size="small"
-					/>
-					<RemoteButton
-						icon="keyboard"
-						onPress={() => router.push("/keyboard")}
-						size="small"
-					/>
-				</View>
-
-				{/* HDMI Inputs */}
-				<View style={styles.row}>
-					<RemoteButton
-						label="HDMI 1"
-						onPress={() => press("InputHDMI1")}
-						size="small"
-					/>
-					<RemoteButton
-						label="HDMI 2"
-						onPress={() => press("InputHDMI2")}
-						size="small"
-					/>
-					<RemoteButton
-						label="HDMI 3"
-						onPress={() => press("InputHDMI3")}
-						size="small"
-					/>
-					<RemoteButton
-						label="Tuner"
-						onPress={() => press("InputTuner")}
-						size="small"
-					/>
-				</View>
-
-				{lastError && (
-					<Text style={[styles.error, { color: colors.dangerText }]}>
-						{lastError}
-					</Text>
+						{/* HDMI Inputs */}
+						<View style={styles.row}>
+							<RemoteButton label="HDMI 1" onPress={() => press("InputHDMI1")} size="small" />
+							<RemoteButton label="HDMI 2" onPress={() => press("InputHDMI2")} size="small" />
+							<RemoteButton label="HDMI 3" onPress={() => press("InputHDMI3")} size="small" />
+							<RemoteButton label="Tuner" onPress={() => press("InputTuner")} size="small" />
+						</View>
+					</>
 				)}
 			</ScrollView>
 		</SafeAreaView>
@@ -232,38 +163,60 @@ export default function RemoteScreen() {
 const styles = StyleSheet.create({
 	container: { flex: 1 },
 	header: {
+		flexDirection: "row",
 		alignItems: "center",
-		paddingTop: 8,
-		paddingBottom: 4,
+		justifyContent: "space-between",
+		paddingHorizontal: 20,
+		paddingVertical: 12,
 	},
-	title: { fontSize: 22, fontWeight: "700" },
-	subtitle: { fontSize: 13, marginTop: 2 },
+	devicePill: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 6,
+		flex: 1,
+	},
+	dot: {
+		width: 8,
+		height: 8,
+		borderRadius: 4,
+	},
+	deviceName: {
+		fontSize: 15,
+		fontWeight: "600",
+		flexShrink: 1,
+	},
+	powerBtn: {
+		borderRadius: 999,
+		width: 44,
+		height: 44,
+		minWidth: 44,
+		minHeight: 44,
+		paddingVertical: 0,
+		paddingHorizontal: 0,
+	},
 	controls: {
 		alignItems: "center",
 		paddingHorizontal: 20,
 		paddingBottom: 40,
-		gap: 14,
+		gap: 16,
+	},
+	dpadWrapper: {
+		alignItems: "center",
 	},
 	row: {
 		flexDirection: "row",
 		justifyContent: "center",
-		gap: 16,
+		gap: 12,
+		width: "100%",
 	},
-	dpadContainer: {
-		padding: 12,
-		borderRadius: 20,
-		borderWidth: 1,
+	moreToggle: {
+		flexDirection: "row",
 		alignItems: "center",
 		gap: 4,
+		paddingVertical: 4,
 	},
-	dpadRow: {
-		flexDirection: "row",
-		justifyContent: "center",
-		gap: 8,
-	},
-	error: {
-		fontSize: 12,
-		textAlign: "center",
-		marginTop: 8,
+	moreLabel: {
+		fontSize: 13,
+		fontWeight: "500",
 	},
 });

@@ -20,6 +20,8 @@ export const Colors = {
 		dangerText: "#D32F2F",
 		success: "#2E7D32",
 		subtle: "#999",
+		accent: "#00A89E",
+		dpadRing: "#E0E0E8",
 	},
 	dark: {
 		text: "#ECEDEE",
@@ -36,6 +38,8 @@ export const Colors = {
 		dangerText: "#FF6B6B",
 		success: "#66BB6A",
 		subtle: "#666",
+		accent: "#00D4C8",
+		dpadRing: "#1E1E26",
 	},
 };
 

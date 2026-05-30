@@ -2,7 +2,7 @@ import * as Haptics from "expo-haptics";
 import { Pressable, type GestureResponderEvent, type PressableProps } from "react-native";
 
 type TabBarButtonProps = PressableProps & {
-	onPressIn?: (ev: GestureResponderEvent) => void;
+	onPressIn?: ((ev: GestureResponderEvent) => void) | null;
 	children?: React.ReactNode;
 };
 

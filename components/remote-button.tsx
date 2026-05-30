@@ -21,9 +21,10 @@ type Props = {
 	iconSize?: number;
 	style?: ViewStyle;
 	textStyle?: TextStyle;
-	variant?: "default" | "accent" | "danger" | "round";
+	variant?: "default" | "accent" | "danger" | "round" | "glow";
 	size?: "small" | "medium" | "large";
 	disabled?: boolean;
+	labelPosition?: "below";
 };
 
 export function RemoteButton({
@@ -37,6 +38,7 @@ export function RemoteButton({
 	variant = "default",
 	size = "medium",
 	disabled = false,
+	labelPosition,
 }: Props) {
 	const colorScheme = useColorScheme() ?? "dark";
 	const colors = Colors[colorScheme];
@@ -81,10 +83,18 @@ export function RemoteButton({
 			paddingVertical: 0,
 			paddingHorizontal: 0,
 		},
+		glow: {
+			backgroundColor: colors.accent,
+			shadowColor: colors.accent,
+			shadowOpacity: 0.6,
+			shadowRadius: 12,
+			shadowOffset: { width: 0, height: 0 },
+			elevation: 8,
+		},
 	};
 
 	const textColor =
-		variant === "accent"
+		variant === "accent" || variant === "glow"
 			? "#FFFFFF"
 			: variant === "danger"
 				? colors.dangerText
@@ -93,6 +103,8 @@ export function RemoteButton({
 	const finalIconSize =
 		iconSize ?? (size === "large" ? 28 : size === "small" ? 18 : 22);
 
+	const showLabel = label && (labelPosition === "below" || !icon);
+
 	return (
 		<Pressable
 			onPress={handlePress}
@@ -100,6 +112,7 @@ export function RemoteButton({
 			disabled={disabled}
 			style={({ pressed }) => [
 				styles.base,
+				labelPosition === "below" && styles.column,
 				sizeStyles[size],
 				variantStyles[variant],
 				pressed && { opacity: 0.6, transform: [{ scale: 0.95 }] },
@@ -110,10 +123,11 @@ export function RemoteButton({
 			{icon && (
 				<MaterialIcons name={icon} size={finalIconSize} color={textColor} />
 			)}
-			{label && !icon && (
+			{showLabel && (
 				<Text
 					style={[
 						styles.label,
+						labelPosition === "below" && styles.labelBelow,
 						{ color: textColor, fontSize: size === "small" ? 12 : 14 },
 						textStyle,
 					]}
@@ -131,8 +145,15 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "center",
 	},
+	column: {
+		flexDirection: "column",
+		gap: 4,
+	},
 	label: {
 		fontWeight: "600",
 		textAlign: "center",
+	},
+	labelBelow: {
+		fontSize: 11,
 	},
 });

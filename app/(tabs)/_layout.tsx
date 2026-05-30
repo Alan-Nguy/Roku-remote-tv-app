@@ -39,13 +39,6 @@ export default function TabLayout() {
 					),
 				}}
 			/>
-			{/* Hide leftover scaffold screen */}
-			<Tabs.Screen
-				name="explore"
-				options={{
-					href: null,
-				}}
-			/>
-		</Tabs>
+			</Tabs>
 	);
 }
